@@ -179,7 +179,7 @@ def loadCSV():
         barcodeListLength.set((str(len(fileArray)))
                               + ' (' + str(printItemCounter) + ' print, '
                               + str(cutItemCounter) + ' cut)')
-        firstBarcode.set(fileArray[0][0])
+        currentBarcode.set(fileArray[0][0])
         pb["maximum"] = len(fileArray)
 
 def saveFile():
@@ -200,7 +200,7 @@ def saveFile():
     fileArray = []
     csvFileName.set('Load CSV File')
     barcodeListLength.set('0')
-    firstBarcode.set('N/A')
+    currentBarcode.set('N/A')
     progressBarValue = 0
     pb["value"] = progressBarValue
     pb["maximum"] = len(fileArray)
@@ -217,7 +217,7 @@ def singleLabel(array):
     pb["value"] = progressBarValue
 
 def exportLabels(filename):
-    global progressBarValue
+    global progressBarValue, currentBarcode
     with PdfPages(filename) as pdf:
         #Main label generation
         for a in range(0,len(fileArray)):
@@ -234,6 +234,7 @@ def exportLabels(filename):
                     pdf.savefig()
                     plt.close()
                     progressBarValue+=1
+                    currentBarcode.set(fileArray[a][0])#
                     pb["value"] = progressBarValue
             else:
                 #singleLabel(fileArray)
@@ -244,6 +245,7 @@ def exportLabels(filename):
                 pdf.savefig()
                 plt.close()
                 progressBarValue+=1
+                currentBarcode.set(fileArray[a][0])#
                 pb["value"] = progressBarValue
                 
         #Metadata
@@ -266,8 +268,8 @@ csvFileName = StringVar()
 csvFileName.set('Load CSV File')
 barcodeListLength = StringVar()
 barcodeListLength.set('0')
-firstBarcode = StringVar()
-firstBarcode.set('N/A')
+currentBarcode = StringVar()
+currentBarcode.set('N/A')
 
 mainframe = ttk.Frame(root, padding="10 10 10 10")
 mainframe.pack()
@@ -277,10 +279,10 @@ fileSpecsFrame.pack()
 
 static1 = ttk.Label(fileSpecsFrame, text='CSV File: ').grid(column=1, row=1, sticky=(W))
 static2 = ttk.Label(fileSpecsFrame, text='No. of Barcodes: ').grid(column=1, row=2, sticky=(W))
-static3 = ttk.Label(fileSpecsFrame, text='First Barcode: ').grid(column=1, row=3, sticky=(W))
+static3 = ttk.Label(fileSpecsFrame, text='Barcode: ').grid(column=1, row=3, sticky=(W))
 loadedFileLabel = ttk.Label(fileSpecsFrame, textvariable=csvFileName).grid(column=2, row=1, sticky=(E))
 barcodeListLabel = ttk.Label(fileSpecsFrame, textvariable=barcodeListLength).grid(column=2, row=2, sticky=(E))
-firstBarcodeLabel = ttk.Label(fileSpecsFrame, textvariable=firstBarcode).grid(column=2, row=3, sticky=(E))
+currentBarcodeLabel = ttk.Label(fileSpecsFrame, textvariable=currentBarcode).grid(column=2, row=3, sticky=(E))
 
 pb = ttk.Progressbar(mainframe, orient=HORIZONTAL,
                      length=200, mode='determinate',
@@ -317,6 +319,6 @@ saveButton = ttk.Button(fileFrame,
                                             pady = 5,
                                             side="right")
 
-firstBarcodeLabel = ttk.Label(mainframe, text='Version 4 - 5th June 2019').pack()
+versionLabel = ttk.Label(mainframe, text='Version 4 - 5th June 2019').pack()
 root.mainloop()
 
