@@ -30,8 +30,8 @@ partcodeFont = FontProperties(family='sans-serif',
                                weight=None,
                                stretch=None,
                                size=(3.788 *point2mmUnits)* fontSizeMultiplier,
-                               fname='C:\Windows\Fonts\Arial.ttf',
-                               _init=None)
+                               fname='C:\Windows\Fonts\Arial.ttf')#,
+                               #_init=None)
 
 locationFont = FontProperties(family='sans-serif',
                                style=None,
@@ -39,8 +39,8 @@ locationFont = FontProperties(family='sans-serif',
                                weight=None,
                                stretch=None,
                                size=(1.768 *point2mmUnits)* fontSizeMultiplier,
-                               fname='C:\Windows\Fonts\Arial.ttf',
-                               _init=None)
+                               fname='C:\Windows\Fonts\Arial.ttf')#,
+                               #_init=None)
 
 initialDirectory = "/"
 fileArray = []
@@ -181,6 +181,7 @@ def loadCSV():
                               + str(cutItemCounter) + ' cut)')
         currentBarcode.set(fileArray[0][0])
         pb["maximum"] = len(fileArray)
+    #print(fileArray)
 
 def saveFile():
     global pdfFilename,fileArray,progressBarValue
@@ -216,15 +217,34 @@ def singleLabel(array):
     progressBarValue+=1
     pb["value"] = progressBarValue
 
+
 def exportLabels(filename):
     global progressBarValue, currentBarcode
     with PdfPages(filename) as pdf:
         #Main label generation
         for a in range(0,len(fileArray)):
-            if var.get() is 1:
-                if fileArray[a][4] == 'Print' or fileArray[a][4] == 'PRINT':
-                    progressBarValue+=1
-                    pass
+            
+            if multiplyVar.get() is 1:
+                labelQuantity = int(fileArray[a][3])
+            else:
+                labelQuantity = 1
+                
+            for q in range(0,labelQuantity):
+                if skipVar.get() is 1:
+                    if fileArray[a][4] == 'Print' or fileArray[a][4] == 'PRINT':
+                        progressBarValue+=1
+                        pass
+                    else:
+                        #singleLabel(fileArray)
+                        full_frame()
+                        label(fileArray[a][0],
+                            fileArray[a][1],
+                            fileArray[a][2],)
+                        pdf.savefig()
+                        plt.close()
+                        progressBarValue+=1
+                        currentBarcode.set(fileArray[a][0])#
+                        pb["value"] = progressBarValue
                 else:
                     #singleLabel(fileArray)
                     full_frame()
@@ -236,17 +256,6 @@ def exportLabels(filename):
                     progressBarValue+=1
                     currentBarcode.set(fileArray[a][0])#
                     pb["value"] = progressBarValue
-            else:
-                #singleLabel(fileArray)
-                full_frame()
-                label(fileArray[a][0],
-                    fileArray[a][1],
-                    fileArray[a][2],)
-                pdf.savefig()
-                plt.close()
-                progressBarValue+=1
-                currentBarcode.set(fileArray[a][0])#
-                pb["value"] = progressBarValue
                 
         #Metadata
         d = pdf.infodict()
@@ -290,14 +299,23 @@ pb = ttk.Progressbar(mainframe, orient=HORIZONTAL,
                      value = progressBarValue)
 pb.pack(ipadx = 5, ipady = 5,padx = 5, pady = 5)
 
-var = IntVar()
-var.set(1)
+skipVar = IntVar()
+skipVar.set(1)
 skipPrintBox = ttk.Checkbutton(mainframe,
                                text="Skip print items",
-                               variable=var).pack(ipadx = 5,
-                                             ipady = 5,
-                                             padx = 5,
-                                             pady = 5)
+                               variable=skipVar).pack(ipadx = 2.5,
+                                             ipady = 2.5,
+                                             padx = 2.5,
+                                             pady = 2.5)
+
+multiplyVar = IntVar()
+multiplyVar.set(1)
+multiplyVarBox = ttk.Checkbutton(mainframe,
+                                 text="Use table quantities",
+                                 variable=multiplyVar).pack(ipadx = 2.5,
+                                                        ipady = 2.5,
+                                                        padx = 2.5,
+                                                        pady = 2.5)
 
 fileFrame = ttk.Labelframe(mainframe,
                            text='File',
@@ -319,6 +337,6 @@ saveButton = ttk.Button(fileFrame,
                                             pady = 5,
                                             side="right")
 
-versionLabel = ttk.Label(mainframe, text='Version 4 - 5th June 2019').pack()
+versionLabel = ttk.Label(mainframe, text='Version 5 - 5th June 2020').pack()
 root.mainloop()
 
